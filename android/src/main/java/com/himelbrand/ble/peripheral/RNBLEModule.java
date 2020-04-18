@@ -103,9 +103,12 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void addCharacteristicToService(String serviceUUID, String uuid, Integer permissions, Integer properties) {
+    public void addCharacteristicToService(String serviceUUID, String uuid, Integer permissions, Integer properties, String value) {
         UUID CHAR_UUID = UUID.fromString(uuid);
         BluetoothGattCharacteristic tempChar = new BluetoothGattCharacteristic(CHAR_UUID, properties, permissions);
+        byte[] data = value.getBytes("UTF-8");
+        String base64 = Base64.encodeToString(data, Base64.DEFAULT)
+        tempChar.setValue(base64);
         this.servicesMap.get(serviceUUID).addCharacteristic(tempChar);
     }
 
