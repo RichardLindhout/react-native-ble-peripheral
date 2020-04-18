@@ -22,11 +22,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,8 +108,13 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
     public void addCharacteristicToService(String serviceUUID, String uuid, Integer permissions, Integer properties, String value) {
         UUID CHAR_UUID = UUID.fromString(uuid);
         BluetoothGattCharacteristic tempChar = new BluetoothGattCharacteristic(CHAR_UUID, properties, permissions);
-        byte[] data = value.getBytes("UTF-8");
-        String base64 = Base64.encodeToString(data, Base64.DEFAULT)
+        byte[] data = new byte[0];
+        try {
+            data = value.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String base64 = Base64.encodeToString(data, Base64.DEFAULT);
         tempChar.setValue(base64);
         this.servicesMap.get(serviceUUID).addCharacteristic(tempChar);
     }
@@ -187,7 +194,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
 
 
         AdvertiseData.Builder dataBuilder = new AdvertiseData.Builder()
-                .setIncludeDeviceName(true);
+                .setIncludeDeviceName(false);
         for (BluetoothGattService service : this.servicesMap.values()) {
             dataBuilder.addServiceUuid(new ParcelUuid(service.getUuid()));
         }
